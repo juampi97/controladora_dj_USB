@@ -263,6 +263,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 6 */
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+  VCP_ReceiveCpltCallback(Buf, *Len);
+
   return (USBD_OK);
   /* USER CODE END 6 */
 }
@@ -311,11 +314,27 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   UNUSED(Buf);
   UNUSED(Len);
   UNUSED(epnum);
+
+  VCP_TransmitCpltCallback();
+
   /* USER CODE END 13 */
   return result;
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
+
+	void VCP_Transmit(uint8_t *buffer, uint16_t size)
+	{
+		CDC_Transmit_FS(buffer,size);
+	}
+	__weak void VCP_TransmitCpltCallback(void)
+	{
+		// Redefinir en la aplicacion
+	}
+	__weak void VCP_ReceiveCpltCallback(uint8_t *buffer, uint32_t size)
+	{
+		// Redefinir en la aplicacion
+	}
 
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 

@@ -109,6 +109,10 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
 
+	void VCP_Transmit(uint8_t *buffer, uint16_t size);
+	void VCP_TransmitCpltCallback(void);
+	void VCP_ReceiveCpltCallback(uint8_t *buffer, uint32_t size);
+
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**
