@@ -55,7 +55,13 @@ static void MX_GPIO_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
+void VCP_TransmitCpltCallback(void){
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+}
+void VCP_ReceiveCpltCallback(uint8_t *buffer, uint32_t size){
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+	VCP_Transmit(buffer,size);
+}
 
 /* USER CODE END 0 */
 
@@ -96,7 +102,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, 1);
+	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, 1);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
