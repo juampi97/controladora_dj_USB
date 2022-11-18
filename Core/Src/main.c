@@ -74,6 +74,8 @@ uint8_t 	MIDI_pot3[3] = {0xB0,03,00};
 uint16_t	pot3;
 uint8_t 	MIDI_pot4[3] = {0xB0,04,00};
 uint16_t	pot4;
+uint8_t 	MIDI_pot5[3] = {0xB0,05,00};
+uint16_t	pot5;
 uint8_t		flagSend_MIDI_pot[5] = {0,0,0,0,0};
 
 uint8_t		tx_buffer[15];
@@ -143,6 +145,11 @@ void ADC_task(void){
 			MIDI_pot4[2] = ADC_buffer[3] * 127 / 256;
 			VCP_Transmit(MIDI_pot4,3);
 		}
+		if( ( (ADC_buffer[4]) < (pot5-5) ) || ( (ADC_buffer[4]) > (pot5+5) ) ){
+			pot5 = ADC_buffer[4];
+			MIDI_pot5[2] = ADC_buffer[4] * 127 / 256;
+			VCP_Transmit(MIDI_pot5,3);
+		}
 	}
 }
 
@@ -196,7 +203,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim4);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 4);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 5);
 
   tx_buffer[0] = 0;
 
@@ -289,7 +296,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.NbrOfConversion = 5;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -329,6 +336,15 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = 4;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = 5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
