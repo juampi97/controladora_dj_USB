@@ -35,7 +35,7 @@
 
 #define READY			0
 #define BUSY			1
-#define wait_bouncing	1000
+#define wait_bouncing	200
 
 #define ON			1
 #define OFF			0
@@ -43,7 +43,7 @@
 #define CHECK		1
 #define PUSH		2
 #define NPUSH		3
-#define DEBOUNCING_TIME		500
+#define DEBOUNCING_TIME		2000
 
 #define SW1_PORT	GPIOE
 #define SW1_PIN		GPIO_PIN_2
@@ -271,11 +271,11 @@ void sw1_task(void){
 		case PUSH:
 			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
 
-			if( (counter_tx1 > SW_BOUNCING_TX_USB) ){
+			//if( (counter_tx1 > SW_BOUNCING_TX_USB) ){
 				VCP_Transmit(MIDI_sw1,3);
-				counter_tx1 = 0;
+			//	counter_tx1 = 0;
 				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
-			}
+			//}
 			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 			//---------------------------- Fin --------------------------//
 			state=IDLE;
