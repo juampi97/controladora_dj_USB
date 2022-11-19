@@ -38,14 +38,17 @@
 #define wait_bouncing	200
 
 #define encoder_port	GPIOE
-#define encoder_key 	GPIO_PIN_1
+#define encoder_key 	GPIO_PIN_2
 #define ON			1
 #define OFF			0
 #define IDLE		0
 #define CHECK		1
 #define PUSH		2
 #define NPUSH		3
-#define DEBOUNCING_TIME		20
+#define DEBOUNCING_TIME		4000
+
+#define SW1_PORT	GPIOE
+#define SW1_PIN		GPIO_PIN_2
 
 /* USER CODE END PD */
 
@@ -76,12 +79,11 @@ uint8_t 	MIDI_pot4[3] = {0xB0,04,00};
 uint16_t	pot4;
 uint8_t 	MIDI_pot5[3] = {0xB0,05,00};
 uint16_t	pot5;
-uint8_t		flagSend_MIDI_pot[5] = {0,0,0,0,0};
 
-uint8_t		tx_buffer[15];
-uint8_t		tx_state = READY;
-uint16_t	tx_counter;
-int			tx_data;
+uint8_t		MIDI_sw1[3] = {0x90, 0x34, 0x47};
+uint32_t	counter_sw1;
+uint8_t 	value_sw1;
+uint8_t 	flag_sw1_push;
 
 
 /* USER CODE END PV */
@@ -101,14 +103,14 @@ static void MX_ADC1_Init(void);
 
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 	ADC_counter++;
-	tx_counter++;
 	led_counter++;
+	counter_sw1++;
 }
 
 void led_task(void){
 	if(led_counter >1000){
 		led_counter = 0;
-		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 	}
 }
 
@@ -117,7 +119,7 @@ void ADC_task(void){
 	if(ADC_counter > 500){
 
 		ADC_counter = 0;
-		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
 
 		if( ( (ADC_buffer[0]) < (pot1-5) ) || ( (ADC_buffer[0]) > (pot1+5) ) ){
 			pot1 = ADC_buffer[0];
@@ -153,6 +155,58 @@ void ADC_task(void){
 	}
 }
 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN) == 1){
+		flag_sw1_push = ON;
+		value_sw1= HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN);
+	}
+}
+
+void sw1_task(void){
+
+	static uint8_t state = IDLE;
+
+	switch(state)
+	{
+		case IDLE:
+			if(flag_sw1_push == ON)
+			{
+				state = CHECK;
+				counter_sw1= 0;
+				flag_sw1_push = OFF;
+			}
+		break;
+		case CHECK:
+			if(counter_sw1== DEBOUNCING_TIME)
+			{
+				if(value_sw1== HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN))
+				{
+					if(value_sw1 == GPIO_PIN_SET)
+						state = PUSH;
+					else
+						state = NPUSH;
+				}
+				else
+					state = IDLE;
+			}
+		break;
+		case PUSH:
+			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
+			VCP_Transmit(MIDI_sw1,3);
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+			//---------------------------- Fin --------------------------//
+			state=IDLE;
+		break;
+		case NPUSH:
+			//-- Aca poner instrucciones de que hacer al soltar sw0 --//
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+			//---------------------------- Fin --------------------------//
+			state=IDLE;
+		break;
+	}
+}
+
 //	Funciones Transmit- Reception USB
 
 void VCP_TransmitCpltCallback(void){
@@ -160,9 +214,6 @@ void VCP_TransmitCpltCallback(void){
 }
 
 void VCP_ReceiveCpltCallback(uint8_t *buffer, uint32_t size){
-
-	//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-	//VCP_Transmit(buffer,size);
 
 }
 
@@ -203,9 +254,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim4);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 5);
-
-  tx_buffer[0] = 0;
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 15);
 
   /* USER CODE END 2 */
 
@@ -216,8 +265,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 	  led_task();
 	  ADC_task();
+	  sw1_task();
   }
   /* USER CODE END 3 */
 }
@@ -429,12 +480,23 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PE2 PE3 PE4 PE5
+                           PE6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5
+                          |GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
   GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
@@ -442,6 +504,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
