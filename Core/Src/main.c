@@ -35,14 +35,9 @@
 
 #define READY			0
 #define BUSY			1
-#define wait_bouncing	20
 
-#define ON			1
-#define OFF			0
-#define IDLE		0
-#define CHECK		1
-#define PUSH		2
-#define NPUSH		3
+#define wait_bouncing	500
+
 #define DEBOUNCING_TIME		100
 
 #define SW1_PORT	GPIOE
@@ -73,6 +68,7 @@
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
 
 /* USER CODE BEGIN PV */
@@ -92,10 +88,15 @@ uint16_t	pot4;
 uint8_t 	MIDI_pot5[3] = {0xB0,05,00};
 uint16_t	pot5;
 
+uint32_t	counter_encoder = 0;
+uint32_t	tim2_count = 0;
+uint32_t	direc;
+uint32_t	encoder_bouncing;
+int			data_encoder;
+uint8_t		MIDI_scroll[3] = {0XB0, 0X1A, 0X7F};
+
 uint8_t		MIDI_sw1[3] = {0x90, 0x34, 0x47};
 uint32_t	counter_sw1;
-uint8_t 	value_sw1;
-
 
 uint8_t		MIDI_sw2[3] = {0x90, 0x35, 0x47};
 uint32_t	counter_sw2;
@@ -118,6 +119,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -130,6 +132,8 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 
 	led_counter++;
 
+	encoder_bouncing++;
+
 	counter_sw1++;
 	counter_sw2++;
 	counter_sw3++;
@@ -140,6 +144,33 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 void led_task(void){
 	if(led_counter > 1000){
 		led_counter = 0;
+	}
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+	tim2_count = __HAL_TIM_GET_COUNTER(htim);
+	direc = !(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2));
+
+	if( (tim2_count != counter_encoder) && (direc == 1) ){
+		MIDI_scroll[2] = 127;
+		data_encoder = 1;
+		encoder_bouncing = 0;
+		counter_encoder = tim2_count;
+	}
+
+	if( (tim2_count != counter_encoder) && (direc == 0) ){
+		MIDI_scroll[2] = 1;
+		data_encoder = 1;
+		encoder_bouncing = 0;
+		counter_encoder = tim2_count;
+	}
+}
+
+void encoder_task(void){
+	if( encoder_bouncing == wait_bouncing ){
+			data_encoder = 0;
+			VCP_Transmit(MIDI_scroll,3);
 	}
 }
 
@@ -392,8 +423,10 @@ int main(void)
   MX_DMA_Init();
   MX_TIM4_Init();
   MX_ADC1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Base_Start_IT(&htim4);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 15);
 
@@ -408,6 +441,9 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	  led_task();
+
+	  encoder_task();
+
 	  ADC_task();
 
 	  sw1_task();
@@ -549,6 +585,55 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_Encoder_InitTypeDef sConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 65535;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_FALLING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_FALLING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim2, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 
