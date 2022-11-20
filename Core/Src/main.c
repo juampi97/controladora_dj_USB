@@ -36,7 +36,7 @@
 #define READY			0
 #define BUSY			1
 
-#define wait_bouncing	500
+#define wait_bouncing	800
 
 #define DEBOUNCING_TIME		100
 
@@ -93,6 +93,8 @@ uint32_t	tim2_count = 0;
 uint32_t	direc;
 uint32_t	encoder_bouncing;
 int			data_encoder;
+uint32_t	tx_encoder;
+
 uint8_t		MIDI_scroll[3] = {0XB0, 0X1A, 0X7F};
 
 uint8_t		MIDI_sw1[3] = {0x90, 0x34, 0x47};
@@ -132,6 +134,7 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 
 	led_counter++;
 
+	tx_encoder++;
 	encoder_bouncing++;
 
 	counter_sw1++;
@@ -153,6 +156,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	direc = !(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2));
 
 	if( (tim2_count != counter_encoder) && (direc == 1) ){
+		MIDI_scroll[1] = 0X1A;
 		MIDI_scroll[2] = 127;
 		data_encoder = 1;
 		encoder_bouncing = 0;
@@ -160,6 +164,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	}
 
 	if( (tim2_count != counter_encoder) && (direc == 0) ){
+		MIDI_scroll[1] = 0X1B;
 		MIDI_scroll[2] = 1;
 		data_encoder = 1;
 		encoder_bouncing = 0;
@@ -168,9 +173,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 }
 
 void encoder_task(void){
-	if( encoder_bouncing == wait_bouncing ){
+	if( (encoder_bouncing == wait_bouncing) & (tx_encoder > 2000) ){
 			data_encoder = 0;
 			VCP_Transmit(MIDI_scroll,3);
+			tx_encoder = 0;
 	}
 }
 
