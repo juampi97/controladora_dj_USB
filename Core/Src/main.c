@@ -35,7 +35,7 @@
 
 #define READY			0
 #define BUSY			1
-#define wait_bouncing	200
+#define wait_bouncing	20
 
 #define ON			1
 #define OFF			0
@@ -43,7 +43,7 @@
 #define CHECK		1
 #define PUSH		2
 #define NPUSH		3
-#define DEBOUNCING_TIME		2000
+#define DEBOUNCING_TIME		100
 
 #define SW1_PORT	GPIOE
 #define SW1_PIN		GPIO_PIN_2
@@ -94,34 +94,20 @@ uint16_t	pot5;
 
 uint8_t		MIDI_sw1[3] = {0x90, 0x34, 0x47};
 uint32_t	counter_sw1;
-uint32_t	counter_tx1;
 uint8_t 	value_sw1;
-uint8_t 	flag_sw1_push;
-uint32_t 	counter_tx1;
+
 
 uint8_t		MIDI_sw2[3] = {0x90, 0x35, 0x47};
 uint32_t	counter_sw2;
-uint32_t	counter_tx2;
-uint8_t 	value_sw2;
-uint8_t 	flag_sw2_push;
 
 uint8_t		MIDI_sw3[3] = {0x90, 0x36, 0x47};
 uint32_t	counter_sw3;
-uint32_t	counter_tx3;
-uint8_t 	value_sw3;
-uint8_t 	flag_sw3_push;
 
 uint8_t		MIDI_sw4[3] = {0x90, 0x37, 0x47};
 uint32_t	counter_sw4;
-uint32_t	counter_tx4;
-uint8_t 	value_sw4;
-uint8_t 	flag_sw4_push;
 
 uint8_t		MIDI_sw5[3] = {0x90, 0x38, 0x47};
 uint32_t	counter_sw5;
-uint32_t	counter_tx5;
-uint8_t 	value_sw5;
-uint8_t 	flag_sw5_push;
 
 
 /* USER CODE END PV */
@@ -149,18 +135,11 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 	counter_sw3++;
 	counter_sw4++;
 	counter_sw5++;
-
-	counter_tx1++;
-	counter_tx2++;
-	counter_tx3++;
-	counter_tx4++;
-	counter_tx5++;
 }
 
 void led_task(void){
-	if(led_counter >1000){
+	if(led_counter > 1000){
 		led_counter = 0;
-		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 	}
 }
 
@@ -169,7 +148,6 @@ void ADC_task(void){
 	if(ADC_counter > 500){
 
 		ADC_counter = 0;
-		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
 
 		if( ( (ADC_buffer[0]) < (pot1-5) ) || ( (ADC_buffer[0]) > (pot1+5) ) ){
 			pot1 = ADC_buffer[0];
@@ -205,282 +183,170 @@ void ADC_task(void){
 	}
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if(HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN) == 1){
-		flag_sw1_push = ON;
-		value_sw1= HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN);
-	}
-
-	if(HAL_GPIO_ReadPin(SW2_PORT, SW2_PIN) == 1){
-		flag_sw2_push = ON;
-		value_sw2= HAL_GPIO_ReadPin(SW2_PORT, SW2_PIN);
-	}
-
-	if(HAL_GPIO_ReadPin(SW3_PORT, SW3_PIN) == 1){
-		flag_sw3_push = ON;
-		value_sw3= HAL_GPIO_ReadPin(SW3_PORT, SW3_PIN);
-	}
-
-	if(HAL_GPIO_ReadPin(SW4_PORT, SW4_PIN) == 1){
-		flag_sw4_push = ON;
-		value_sw4= HAL_GPIO_ReadPin(SW4_PORT, SW4_PIN);
-	}
-
-	if(HAL_GPIO_ReadPin(SW5_PORT, SW5_PIN) == 1){
-		flag_sw5_push = ON;
-		value_sw5= HAL_GPIO_ReadPin(SW5_PORT, SW1_PIN);
-	}
-}
-
-void sw_task(void){
-	sw1_task();
-	sw2_task();
-	sw3_task();
-	sw4_task();
-	sw5_task();
-}
-
 void sw1_task(void){
-	static uint8_t state = IDLE;
+	static uint8_t state1 = 1;
 
-	switch(state)
+	switch(state1)
 	{
-		case IDLE:
-			if(flag_sw1_push == ON)
+		case 1:
+			if((HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN) == 0))
 			{
-				state = CHECK;
+				state1 = 2;
 				counter_sw1= 0;
-				flag_sw1_push = OFF;
 			}
 		break;
-		case CHECK:
-			if(counter_sw1== DEBOUNCING_TIME)
+		case 2:
+			if(counter_sw1 >= DEBOUNCING_TIME)
 			{
-				if(value_sw1== HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN))
+				if(HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN) == 0)
 				{
-					if(value_sw1 == GPIO_PIN_SET)
-						state = PUSH;
-					else
-						state = NPUSH;
+					state1 = 3;
 				}
 				else
-					state = IDLE;
+					state1 = 1;
 			}
 		break;
-		case PUSH:
-			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
-
-			//if( (counter_tx1 > SW_BOUNCING_TX_USB) ){
+		case 3:
+			if(HAL_GPIO_ReadPin(SW1_PORT, SW1_PIN) == 1)
+			{
 				VCP_Transmit(MIDI_sw1,3);
-			//	counter_tx1 = 0;
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
-			//}
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
-		break;
-		case NPUSH:
-			//-- Aca poner instrucciones de que hacer al soltar sw0 --//
-
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
+				state1 = 1;
+			}
 		break;
 	}
 }
 
 void sw2_task(void){
-	static uint8_t state = IDLE;
+	static uint8_t state2 = 1;
 
-	switch(state)
+	switch(state2)
 	{
-		case IDLE:
-			if(flag_sw2_push == ON)
+		case 1:
+			if((HAL_GPIO_ReadPin(SW2_PORT, SW2_PIN) == 0))
 			{
-				state = CHECK;
+				state2 = 2;
 				counter_sw2= 0;
-				flag_sw2_push = OFF;
 			}
 		break;
-		case CHECK:
-			if(counter_sw2== DEBOUNCING_TIME)
+		case 2:
+			if(counter_sw2 >= DEBOUNCING_TIME)
 			{
-				if(value_sw2== HAL_GPIO_ReadPin(SW2_PORT, SW2_PIN))
+				if(HAL_GPIO_ReadPin(SW2_PORT, SW2_PIN) == 0)
 				{
-					if(value_sw2 == GPIO_PIN_SET)
-						state = PUSH;
-					else
-						state = NPUSH;
+					state2 = 3;
 				}
 				else
-					state = IDLE;
+					state2 = 1;
 			}
 		break;
-		case PUSH:
-			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
-
-			if( (counter_tx2 > SW_BOUNCING_TX_USB)){
+		case 3:
+			if(HAL_GPIO_ReadPin(SW2_PORT, SW2_PIN) == 1)
+			{
 				VCP_Transmit(MIDI_sw2,3);
-				counter_tx2 = 0;
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+				state2 = 1;
 			}
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
-		break;
-		case NPUSH:
-			//-- Aca poner instrucciones de que hacer al soltar sw0 --//
-
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
 		break;
 	}
 }
 
 void sw3_task(void){
-	static uint8_t state = IDLE;
+	static uint8_t state3 = 1;
 
-	switch(state)
+	switch(state3)
 	{
-		case IDLE:
-			if(flag_sw3_push == ON)
+		case 1:
+			if((HAL_GPIO_ReadPin(SW3_PORT, SW3_PIN) == 0))
 			{
-				state = CHECK;
+				state3 = 2;
 				counter_sw3= 0;
-				flag_sw3_push = OFF;
 			}
 		break;
-		case CHECK:
-			if(counter_sw3== DEBOUNCING_TIME)
+		case 2:
+			if(counter_sw3 >= DEBOUNCING_TIME)
 			{
-				if(value_sw3== HAL_GPIO_ReadPin(SW3_PORT, SW3_PIN))
+				if(HAL_GPIO_ReadPin(SW3_PORT, SW3_PIN) == 0)
 				{
-					if(value_sw3 == GPIO_PIN_SET)
-						state = PUSH;
-					else
-						state = NPUSH;
+					state3 = 3;
 				}
 				else
-					state = IDLE;
+					state3 = 1;
 			}
 		break;
-		case PUSH:
-			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
-
-			if( (counter_tx3 > SW_BOUNCING_TX_USB)){
+		case 3:
+			if(HAL_GPIO_ReadPin(SW3_PORT, SW3_PIN) == 1)
+			{
 				VCP_Transmit(MIDI_sw3,3);
-				counter_tx3 = 0;
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+				state3 = 1;
 			}
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
-		break;
-		case NPUSH:
-			//-- Aca poner instrucciones de que hacer al soltar sw0 --//
-
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
 		break;
 	}
 }
 
 void sw4_task(void){
-	static uint8_t state = IDLE;
+	static uint8_t state4 = 1;
 
-	switch(state)
+	switch(state4)
 	{
-		case IDLE:
-			if(flag_sw4_push == ON)
+		case 1:
+			if((HAL_GPIO_ReadPin(SW4_PORT, SW4_PIN) == 0))
 			{
-				state = CHECK;
+				state4 = 2;
 				counter_sw4= 0;
-				flag_sw4_push = OFF;
 			}
 		break;
-		case CHECK:
-			if(counter_sw4== DEBOUNCING_TIME)
+		case 2:
+			if(counter_sw4 >= DEBOUNCING_TIME)
 			{
-				if(value_sw4== HAL_GPIO_ReadPin(SW4_PORT, SW4_PIN))
+				if(HAL_GPIO_ReadPin(SW4_PORT, SW4_PIN) == 0)
 				{
-					if(value_sw4 == GPIO_PIN_SET)
-						state = PUSH;
-					else
-						state = NPUSH;
+					state4 = 3;
 				}
 				else
-					state = IDLE;
+					state4 = 1;
 			}
 		break;
-		case PUSH:
-			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
-
-			if( (counter_tx4 > SW_BOUNCING_TX_USB)){
+		case 3:
+			if(HAL_GPIO_ReadPin(SW4_PORT, SW4_PIN) == 1)
+			{
 				VCP_Transmit(MIDI_sw4,3);
-				counter_tx4 = 0;
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+				state4 = 1;
 			}
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
-		break;
-		case NPUSH:
-			//-- Aca poner instrucciones de que hacer al soltar sw0 --//
-
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
 		break;
 	}
 }
 
 void sw5_task(void){
-	static uint8_t state = IDLE;
+	static uint8_t state5 = 1;
 
-	switch(state)
+	switch(state5)
 	{
-		case IDLE:
-			if(flag_sw5_push == ON)
+		case 1:
+			if((HAL_GPIO_ReadPin(SW5_PORT, SW5_PIN) == 0))
 			{
-				state = CHECK;
+				state5 = 2;
 				counter_sw5= 0;
-				flag_sw5_push = OFF;
 			}
 		break;
-		case CHECK:
-			if(counter_sw5== DEBOUNCING_TIME)
+		case 2:
+			if(counter_sw5 >= DEBOUNCING_TIME)
 			{
-				if(value_sw5== HAL_GPIO_ReadPin(SW5_PORT, SW5_PIN))
+				if(HAL_GPIO_ReadPin(SW5_PORT, SW5_PIN) == 0)
 				{
-					if(value_sw5 == GPIO_PIN_SET)
-						state = PUSH;
-					else
-						state = NPUSH;
+					state5 = 3;
 				}
 				else
-					state = IDLE;
+					state5 = 1;
 			}
 		break;
-		case PUSH:
-			//-- Aca poner instrucciones de que hacer al presionar sw0 --//
-
-			if( (counter_tx5 > SW_BOUNCING_TX_USB)){
+		case 3:
+			if(HAL_GPIO_ReadPin(SW5_PORT, SW5_PIN) == 1)
+			{
 				VCP_Transmit(MIDI_sw5,3);
-				counter_tx5 = 0;
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+				state5 = 1;
 			}
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
-		break;
-		case NPUSH:
-			//-- Aca poner instrucciones de que hacer al soltar sw0 --//
-
-			//---------------------------- Fin --------------------------//
-			state=IDLE;
 		break;
 	}
 }
-
 
 //	Funciones Transmit- Reception USB
 
@@ -543,7 +409,12 @@ int main(void)
 
 	  led_task();
 	  ADC_task();
-	  sw_task();
+
+	  sw1_task();
+	  sw2_task();
+	  sw3_task();
+	  sw4_task();
+	  sw5_task();
   }
   /* USER CODE END 3 */
 }
