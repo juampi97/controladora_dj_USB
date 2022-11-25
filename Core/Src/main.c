@@ -41,19 +41,64 @@
 #define DEBOUNCING_TIME		100
 
 #define SW1_PORT	GPIOE
-#define SW1_PIN		GPIO_PIN_2
+#define SW1_PIN		GPIO_PIN_0
 
 #define SW2_PORT	GPIOE
-#define SW2_PIN		GPIO_PIN_3
+#define SW2_PIN		GPIO_PIN_1
 
 #define SW3_PORT	GPIOE
-#define SW3_PIN		GPIO_PIN_4
+#define SW3_PIN		GPIO_PIN_2
 
 #define SW4_PORT	GPIOE
-#define SW4_PIN		GPIO_PIN_5
+#define SW4_PIN		GPIO_PIN_3
 
 #define SW5_PORT	GPIOE
-#define SW5_PIN		GPIO_PIN_6
+#define SW5_PIN		GPIO_PIN_4
+
+#define SW6_PORT	GPIOE
+#define SW6_PIN		GPIO_PIN_5
+
+#define SW7_PORT	GPIOB
+#define SW7_PIN		GPIO_PIN_6
+
+#define SW8_PORT	GPIOB
+#define SW8_PIN		GPIO_PIN_7
+
+#define SW9_PORT	GPIOB
+#define SW9_PIN		GPIO_PIN_8
+
+#define SW10_PORT	GPIOB
+#define SW10_PIN	GPIO_PIN_9
+
+#define SW11_PORT	GPIOB
+#define SW11_PIN	GPIO_PIN_10
+
+#define SW12_PORT	GPIOB
+#define SW12_PIN	GPIO_PIN_11
+
+#define SW13_PORT	GPIOB
+#define SW13_PIN	GPIO_PIN_12
+
+#define SW14_PORT	GPIOB
+#define SW14_PIN	GPIO_PIN_13
+
+#define SW15_PORT	GPIOB
+#define SW15_PIN	GPIO_PIN_14
+
+#define SW16_PORT	GPIOB
+#define SW16_PIN	GPIO_PIN_15
+
+#define SW17_PORT	GPIOE
+#define SW17_PIN	GPIO_PIN_12
+
+#define SW18_PORT	GPIOE
+#define SW18_PIN	GPIO_PIN_13
+
+#define SW19_PORT	GPIOE
+#define SW19_PIN	GPIO_PIN_14
+
+#define SW20_PORT	GPIOE
+#define SW20_PIN	GPIO_PIN_15
 
 #define SW_BOUNCING_TX_USB 5000
 
@@ -75,7 +120,7 @@ TIM_HandleTypeDef htim4;
 
 uint32_t led_counter;
 
-uint8_t   	ADC_buffer[14];
+uint8_t   	ADC_buffer[13];
 uint32_t 	ADC_counter;
 uint8_t 	MIDI_pot1[3] = {0xB0,01,00};
 uint16_t	pot1;
@@ -87,6 +132,23 @@ uint8_t 	MIDI_pot4[3] = {0xB0,04,00};
 uint16_t	pot4;
 uint8_t 	MIDI_pot5[3] = {0xB0,05,00};
 uint16_t	pot5;
+uint8_t 	MIDI_pot6[3] = {0xB0,06,00};
+uint16_t	pot6;
+uint8_t 	MIDI_pot7[3] = {0xB0,07,00};
+uint16_t	pot7;
+uint8_t 	MIDI_pot8[3] = {0xB0,10,00};
+uint16_t	pot8;
+uint8_t 	MIDI_pot9[3] = {0xB0,11,00};
+uint16_t	pot9;
+uint8_t 	MIDI_pot10[3] = {0xB0,12,00};
+uint16_t	pot10;
+uint8_t 	MIDI_pot11[3] = {0xB0,13,00};
+uint16_t	pot11;
+uint8_t 	MIDI_pot12[3] = {0xB0,14,00};
+uint16_t	pot12;
+uint8_t 	MIDI_pot13[3] = {0xB0,15,00};
+uint16_t	pot13;
+
 
 uint32_t	counter_encoder = 0;
 uint32_t	tim2_count = 0;
@@ -111,6 +173,51 @@ uint32_t	counter_sw4;
 
 uint8_t		MIDI_sw5[3] = {0x90, 0x38, 0x47};
 uint32_t	counter_sw5;
+
+uint8_t		MIDI_sw6[3] = {0x90, 0x39, 0x47};
+uint32_t	counter_sw6;
+
+uint8_t		MIDI_sw7[3] = {0x90, 0x40, 0x47};
+uint32_t	counter_sw7;
+
+uint8_t		MIDI_sw8[3] = {0x90, 0x41, 0x47};
+uint32_t	counter_sw8;
+
+uint8_t		MIDI_sw9[3] = {0x90, 0x42, 0x47};
+uint32_t	counter_sw9;
+
+uint8_t		MIDI_sw10[3] = {0x90, 0x43, 0x47};
+uint32_t	counter_sw10;
+
+uint8_t		MIDI_sw11[3] = {0x90, 0x44, 0x47};
+uint32_t	counter_sw11;
+
+uint8_t		MIDI_sw12[3] = {0x90, 0x45, 0x47};
+uint32_t	counter_sw12;
+
+uint8_t		MIDI_sw13[3] = {0x90, 0x46, 0x47};
+uint32_t	counter_sw13;
+
+uint8_t		MIDI_sw14[3] = {0x90, 0x47, 0x47};
+uint32_t	counter_sw14;
+
+uint8_t		MIDI_sw15[3] = {0x90, 0x48, 0x47};
+uint32_t	counter_sw15;
+
+uint8_t		MIDI_sw16[3] = {0x90, 0x49, 0x47};
+uint32_t	counter_sw16;
+
+uint8_t		MIDI_sw17[3] = {0x90, 0x50, 0x47};
+uint32_t	counter_sw17;
+
+uint8_t		MIDI_sw18[3] = {0x90, 0x51, 0x47};
+uint32_t	counter_sw18;
+
+uint8_t		MIDI_sw19[3] = {0x90, 0x52, 0x47};
+uint32_t	counter_sw19;
+
+uint8_t		MIDI_sw20[3] = {0x90, 0x53, 0x47};
+uint32_t	counter_sw20;
 
 
 /* USER CODE END PV */
@@ -142,6 +249,21 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 	counter_sw3++;
 	counter_sw4++;
 	counter_sw5++;
+	counter_sw6++;
+	counter_sw7++;
+	counter_sw8++;
+	counter_sw9++;
+	counter_sw10++;
+	counter_sw11++;
+	counter_sw12++;
+	counter_sw13++;
+	counter_sw14++;
+	counter_sw15++;
+	counter_sw16++;
+	counter_sw17++;
+	counter_sw18++;
+	counter_sw19++;
+	counter_sw20++;
 }
 
 void led_task(void){
@@ -216,6 +338,57 @@ void ADC_task(void){
 			pot5 = ADC_buffer[4];
 			MIDI_pot5[2] = ADC_buffer[4] * 127 / 256;
 			VCP_Transmit(MIDI_pot5,3);
+		}
+
+		if( ( (ADC_buffer[5]) < (pot6-5) ) || ( (ADC_buffer[5]) > (pot6+5) ) ){
+			pot6 = ADC_buffer[5];
+			MIDI_pot6[2] = ADC_buffer[5] * 127 / 256;
+			VCP_Transmit(MIDI_pot6,3);
+		}
+
+
+		if( ( (ADC_buffer[6]) < (pot7-5) ) || ( (ADC_buffer[6]) > (pot7+5) ) ){
+			pot7 = ADC_buffer[6];
+			MIDI_pot7[2] = ADC_buffer[6] * 127 / 256;
+			VCP_Transmit(MIDI_pot7,3);
+		}
+
+
+		if( ( (ADC_buffer[7]) < (pot8-5) ) || ( (ADC_buffer[7]) > (pot8+5) ) ){
+			pot8 = ADC_buffer[7];
+			MIDI_pot8[2] = ADC_buffer[7] * 127 / 256;
+			VCP_Transmit(MIDI_pot8,3);
+		}
+
+
+		if( ( (ADC_buffer[8]) < (pot9-5) ) || ( (ADC_buffer[8]) > (pot9+5) ) ){
+			pot9 = ADC_buffer[8];
+			MIDI_pot9[2] = ADC_buffer[8] * 127 / 256;
+			VCP_Transmit(MIDI_pot9,3);
+		}
+
+		if( ( (ADC_buffer[9]) < (pot10-5) ) || ( (ADC_buffer[9]) > (pot10+5) ) ){
+			pot10 = ADC_buffer[9];
+			MIDI_pot10[2] = ADC_buffer[9] * 127 / 256;
+			VCP_Transmit(MIDI_pot10,3);
+		}
+
+		if( ( (ADC_buffer[10]) < (pot11-5) ) || ( (ADC_buffer[10]) > (pot11+5) ) ){
+			pot11 = ADC_buffer[10];
+			MIDI_pot11[2] = ADC_buffer[10] * 127 / 256;
+			VCP_Transmit(MIDI_pot11,3);
+		}
+
+		if( ( (ADC_buffer[11]) < (pot12-5) ) || ( (ADC_buffer[11]) > (pot12+5) ) ){
+			pot12 = ADC_buffer[11];
+			MIDI_pot12[2] = ADC_buffer[11] * 127 / 256;
+			VCP_Transmit(MIDI_pot12,3);
+		}
+
+		if( ( (ADC_buffer[12]) < (pot13-5) ) || ( (ADC_buffer[12]) > (pot13+5) ) ){
+			pot13 = ADC_buffer[12];
+			MIDI_pot13[2] = ADC_buffer[12] * 127 / 256;
+			VCP_Transmit(MIDI_pot13,3);
 		}
 	}
 }
