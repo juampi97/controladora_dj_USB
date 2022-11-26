@@ -75,7 +75,7 @@ TIM_HandleTypeDef htim4;
 
 uint32_t led_counter;
 
-uint8_t   	ADC_buffer[14];
+uint8_t   	ADC_buffer[13];
 uint32_t 	ADC_counter;
 uint8_t 	MIDI_pot1[3] = {0xB0,01,00};
 uint16_t	pot1;
@@ -87,6 +87,22 @@ uint8_t 	MIDI_pot4[3] = {0xB0,04,00};
 uint16_t	pot4;
 uint8_t 	MIDI_pot5[3] = {0xB0,05,00};
 uint16_t	pot5;
+uint8_t 	MIDI_pot6[3] = {0xB0,06,00};
+uint16_t	pot6;
+uint8_t 	MIDI_pot7[3] = {0xB0,07,00};
+uint16_t	pot7;
+uint8_t 	MIDI_pot8[3] = {0xB0,10,00};
+uint16_t	pot8;
+uint8_t 	MIDI_pot9[3] = {0xB0,11,00};
+uint16_t	pot9;
+uint8_t 	MIDI_pot10[3] = {0xB0,12,00};
+uint16_t	pot10;
+uint8_t 	MIDI_pot11[3] = {0xB0,13,00};
+uint16_t	pot11;
+uint8_t 	MIDI_pot12[3] = {0xB0,14,00};
+uint16_t	pot12;
+uint8_t 	MIDI_pot13[3] = {0xB0,15,00};
+uint16_t	pot13;
 
 uint32_t	counter_encoder = 0;
 uint32_t	tim2_count = 0;
@@ -184,40 +200,91 @@ void ADC_task(void){
 
 	if(ADC_counter > 500){
 
-		ADC_counter = 0;
+			ADC_counter = 0;
 
-		if( ( (ADC_buffer[0]) < (pot1-5) ) || ( (ADC_buffer[0]) > (pot1+5) ) ){
-			pot1 = ADC_buffer[0];
-			MIDI_pot1[2] = ADC_buffer[0] * 127 / 256;
-			VCP_Transmit(MIDI_pot1,3);
+			if( ( (ADC_buffer[0]) < (pot1-5) ) || ( (ADC_buffer[0]) > (pot1+5) ) ){
+				pot1 = ADC_buffer[0];
+				MIDI_pot1[2] = ADC_buffer[0] * 127 / 256;
+				VCP_Transmit(MIDI_pot1,3);
+			}
+
+
+			if( ( (ADC_buffer[1]) < (pot2-5) ) || ( (ADC_buffer[1]) > (pot2+5) ) ){
+				pot2 = ADC_buffer[1];
+				MIDI_pot2[2] = ADC_buffer[1] * 127 / 256;
+				VCP_Transmit(MIDI_pot2,3);
+			}
+
+
+			if( ( (ADC_buffer[2]) < (pot3-5) ) || ( (ADC_buffer[2]) > (pot3+5) ) ){
+				pot3 = ADC_buffer[2];
+				MIDI_pot3[2] = ADC_buffer[2] * 127 / 256;
+				VCP_Transmit(MIDI_pot3,3);
+			}
+
+
+			if( ( (ADC_buffer[3]) < (pot4-5) ) || ( (ADC_buffer[3]) > (pot4+5) ) ){
+				pot4 = ADC_buffer[3];
+				MIDI_pot4[2] = ADC_buffer[3] * 127 / 256;
+				VCP_Transmit(MIDI_pot4,3);
+			}
+			if( ( (ADC_buffer[4]) < (pot5-5) ) || ( (ADC_buffer[4]) > (pot5+5) ) ){
+				pot5 = ADC_buffer[4];
+				MIDI_pot5[2] = ADC_buffer[4] * 127 / 256;
+				VCP_Transmit(MIDI_pot5,3);
+			}
+
+			if( ( (ADC_buffer[5]) < (pot6-5) ) || ( (ADC_buffer[5]) > (pot6+5) ) ){
+				pot6 = ADC_buffer[5];
+				MIDI_pot6[2] = ADC_buffer[5] * 127 / 256;
+				VCP_Transmit(MIDI_pot6,3);
+			}
+
+
+			if( ( (ADC_buffer[6]) < (pot7-5) ) || ( (ADC_buffer[6]) > (pot7+5) ) ){
+				pot7 = ADC_buffer[6];
+				MIDI_pot7[2] = ADC_buffer[6] * 127 / 256;
+				VCP_Transmit(MIDI_pot7,3);
+			}
+
+
+			if( ( (ADC_buffer[7]) < (pot8-5) ) || ( (ADC_buffer[7]) > (pot8+5) ) ){
+				pot8 = ADC_buffer[7];
+				MIDI_pot8[2] = ADC_buffer[7] * 127 / 256;
+				VCP_Transmit(MIDI_pot8,3);
+			}
+
+
+			if( ( (ADC_buffer[8]) < (pot9-5) ) || ( (ADC_buffer[8]) > (pot9+5) ) ){
+				pot9 = ADC_buffer[8];
+				MIDI_pot9[2] = ADC_buffer[8] * 127 / 256;
+				VCP_Transmit(MIDI_pot9,3);
+			}
+
+			if( ( (ADC_buffer[9]) < (pot10-5) ) || ( (ADC_buffer[9]) > (pot10+5) ) ){
+				pot10 = ADC_buffer[9];
+				MIDI_pot10[2] = ADC_buffer[9] * 127 / 256;
+				VCP_Transmit(MIDI_pot10,3);
+			}
+
+			if( ( (ADC_buffer[10]) < (pot11-5) ) || ( (ADC_buffer[10]) > (pot11+5) ) ){
+				pot11 = ADC_buffer[10];
+				MIDI_pot11[2] = ADC_buffer[10] * 127 / 256;
+				VCP_Transmit(MIDI_pot11,3);
+			}
+
+			if( ( (ADC_buffer[11]) < (pot12-5) ) || ( (ADC_buffer[11]) > (pot12+5) ) ){
+				pot12 = ADC_buffer[11];
+				MIDI_pot12[2] = ADC_buffer[11] * 127 / 256;
+				VCP_Transmit(MIDI_pot12,3);
+			}
+
+			if( ( (ADC_buffer[12]) < (pot13-5) ) || ( (ADC_buffer[12]) > (pot13+5) ) ){
+				pot13 = ADC_buffer[12];
+				MIDI_pot13[2] = ADC_buffer[12] * 127 / 256;
+				VCP_Transmit(MIDI_pot13,3);
+			}
 		}
-
-
-		if( ( (ADC_buffer[1]) < (pot2-5) ) || ( (ADC_buffer[1]) > (pot2+5) ) ){
-			pot2 = ADC_buffer[1];
-			MIDI_pot2[2] = ADC_buffer[1] * 127 / 256;
-			VCP_Transmit(MIDI_pot2,3);
-		}
-
-
-		if( ( (ADC_buffer[2]) < (pot3-5) ) || ( (ADC_buffer[2]) > (pot3+5) ) ){
-			pot3 = ADC_buffer[2];
-			MIDI_pot3[2] = ADC_buffer[2] * 127 / 256;
-			VCP_Transmit(MIDI_pot3,3);
-		}
-
-
-		if( ( (ADC_buffer[3]) < (pot4-5) ) || ( (ADC_buffer[3]) > (pot4+5) ) ){
-			pot4 = ADC_buffer[3];
-			MIDI_pot4[2] = ADC_buffer[3] * 127 / 256;
-			VCP_Transmit(MIDI_pot4,3);
-		}
-		if( ( (ADC_buffer[4]) < (pot5-5) ) || ( (ADC_buffer[4]) > (pot5+5) ) ){
-			pot5 = ADC_buffer[4];
-			MIDI_pot5[2] = ADC_buffer[4] * 127 / 256;
-			VCP_Transmit(MIDI_pot5,3);
-		}
-	}
 }
 
 void sw1_task(void){
@@ -434,7 +501,7 @@ int main(void)
 
   HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Base_Start_IT(&htim4);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 15);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &ADC_buffer, 13);
 
   /* USER CODE END 2 */
 
@@ -535,7 +602,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 5;
+  hadc1.Init.NbrOfConversion = 13;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -582,8 +649,80 @@ static void MX_ADC1_Init(void)
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
-  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = 5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_6;
+  sConfig.Rank = 6;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_7;
+  sConfig.Rank = 7;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_8;
+  sConfig.Rank = 8;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = 9;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_10;
+  sConfig.Rank = 10;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Rank = 11;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_12;
+  sConfig.Rank = 12;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = 13;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
