@@ -41,20 +41,64 @@
 #define DEBOUNCING_TIME		100
 
 #define SW1_PORT	GPIOE
-#define SW1_PIN		GPIO_PIN_2
+#define SW1_PIN		GPIO_PIN_0
 
 #define SW2_PORT	GPIOE
-#define SW2_PIN		GPIO_PIN_3
+#define SW2_PIN		GPIO_PIN_1
 
 #define SW3_PORT	GPIOE
-#define SW3_PIN		GPIO_PIN_4
+#define SW3_PIN		GPIO_PIN_2
 
 #define SW4_PORT	GPIOE
-#define SW4_PIN		GPIO_PIN_5
+#define SW4_PIN		GPIO_PIN_3
 
 #define SW5_PORT	GPIOE
-#define SW5_PIN		GPIO_PIN_6
+#define SW5_PIN		GPIO_PIN_4
 
+#define SW6_PORT	GPIOE
+#define SW6_PIN		GPIO_PIN_5
+
+#define SW7_PORT	GPIOB
+#define SW7_PIN		GPIO_PIN_6
+
+#define SW8_PORT	GPIOB
+#define SW8_PIN		GPIO_PIN_7
+
+#define SW9_PORT	GPIOB
+#define SW9_PIN		GPIO_PIN_8
+
+#define SW10_PORT	GPIOB
+#define SW10_PIN	GPIO_PIN_9
+
+#define SW11_PORT	GPIOB
+#define SW11_PIN	GPIO_PIN_10
+
+#define SW12_PORT	GPIOB
+#define SW12_PIN	GPIO_PIN_11
+
+#define SW13_PORT	GPIOB
+#define SW13_PIN	GPIO_PIN_12
+
+#define SW14_PORT	GPIOB
+#define SW14_PIN	GPIO_PIN_13
+
+#define SW15_PORT	GPIOB
+#define SW15_PIN	GPIO_PIN_14
+
+#define SW16_PORT	GPIOB
+#define SW16_PIN	GPIO_PIN_15
+
+#define SW17_PORT	GPIOE
+#define SW17_PIN	GPIO_PIN_12
+
+#define SW18_PORT	GPIOE
+#define SW18_PIN	GPIO_PIN_13
+
+#define SW19_PORT	GPIOE
+#define SW19_PIN	GPIO_PIN_14
+
+#define SW20_PORT	GPIOE
+#define SW20_PIN	GPIO_PIN_15
 #define SW_BOUNCING_TX_USB 5000
 
 /* USER CODE END PD */
@@ -127,6 +171,51 @@ uint32_t	counter_sw4;
 
 uint8_t		MIDI_sw5[3] = {0x90, 0x38, 0x47};
 uint32_t	counter_sw5;
+
+uint8_t		MIDI_sw6[3] = {0x90, 0x39, 0x47};
+uint32_t	counter_sw6;
+
+uint8_t		MIDI_sw7[3] = {0x90, 0x40, 0x47};
+uint32_t	counter_sw7;
+
+uint8_t		MIDI_sw8[3] = {0x90, 0x41, 0x47};
+uint32_t	counter_sw8;
+
+uint8_t		MIDI_sw9[3] = {0x90, 0x42, 0x47};
+uint32_t	counter_sw9;
+
+uint8_t		MIDI_sw10[3] = {0x90, 0x43, 0x47};
+uint32_t	counter_sw10;
+
+uint8_t		MIDI_sw11[3] = {0x90, 0x44, 0x47};
+uint32_t	counter_sw11;
+
+uint8_t		MIDI_sw12[3] = {0x90, 0x45, 0x47};
+uint32_t	counter_sw12;
+
+uint8_t		MIDI_sw13[3] = {0x90, 0x46, 0x47};
+uint32_t	counter_sw13;
+
+uint8_t		MIDI_sw14[3] = {0x90, 0x47, 0x47};
+uint32_t	counter_sw14;
+
+uint8_t		MIDI_sw15[3] = {0x90, 0x48, 0x47};
+uint32_t	counter_sw15;
+
+uint8_t		MIDI_sw16[3] = {0x90, 0x49, 0x47};
+uint32_t	counter_sw16;
+
+uint8_t		MIDI_sw17[3] = {0x90, 0x50, 0x47};
+uint32_t	counter_sw17;
+
+uint8_t		MIDI_sw18[3] = {0x90, 0x51, 0x47};
+uint32_t	counter_sw18;
+
+uint8_t		MIDI_sw19[3] = {0x90, 0x52, 0x47};
+uint32_t	counter_sw19;
+
+uint8_t		MIDI_sw20[3] = {0x90, 0x53, 0x47};
+uint32_t	counter_sw20;
 
 
 /* USER CODE END PV */
@@ -452,6 +541,502 @@ void sw5_task(void){
 	}
 }
 
+void sw6_task(void){
+	static uint8_t state6 = 1;
+
+	switch(state6)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW6_PORT, SW6_PIN) == 0))
+			{
+				state6 = 2;
+				counter_sw6= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw6 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW6_PORT, SW6_PIN) == 0)
+				{
+					state6 = 3;
+				}
+				else
+					state6 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW6_PORT, SW6_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw6,3);
+				state6 = 1;
+			}
+		break;
+	}
+}
+
+void sw7_task(void){
+	static uint8_t state7 = 1;
+
+	switch(state7)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW7_PORT, SW7_PIN) == 0))
+			{
+				state7 = 2;
+				counter_sw7= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw7 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW7_PORT, SW7_PIN) == 0)
+				{
+					state7 = 3;
+				}
+				else
+					state7 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW7_PORT, SW7_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw7,3);
+				state7 = 1;
+			}
+		break;
+	}
+}
+
+void sw8_task(void){
+	static uint8_t state8 = 1;
+
+	switch(state8)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW8_PORT, SW8_PIN) == 0))
+			{
+				state8 = 2;
+				counter_sw8= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw8 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW8_PORT, SW8_PIN) == 0)
+				{
+					state8 = 3;
+				}
+				else
+					state8 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW8_PORT, SW8_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw8,3);
+				state8 = 1;
+			}
+		break;
+	}
+}
+
+void sw9_task(void){
+	static uint8_t state9 = 1;
+
+	switch(state9)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW9_PORT, SW9_PIN) == 0))
+			{
+				state9 = 2;
+				counter_sw9= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw9 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW9_PORT, SW9_PIN) == 0)
+				{
+					state9 = 3;
+				}
+				else
+					state9 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW9_PORT, SW9_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw9,3);
+				state9 = 1;
+			}
+		break;
+	}
+}
+
+void sw10_task(void){
+	static uint8_t state10 = 1;
+
+	switch(state10)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW10_PORT, SW10_PIN) == 0))
+			{
+				state10 = 2;
+				counter_sw10= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw10 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW10_PORT, SW10_PIN) == 0)
+				{
+					state10 = 3;
+				}
+				else
+					state10 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW10_PORT, SW10_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw10,3);
+				state10 = 1;
+			}
+		break;
+	}
+}
+
+void sw11_task(void){
+	static uint8_t state11 = 1;
+
+	switch(state11)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW11_PORT, SW11_PIN) == 0))
+			{
+				state11 = 2;
+				counter_sw11= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw11 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW11_PORT, SW11_PIN) == 0)
+				{
+					state11 = 3;
+				}
+				else
+					state11 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW11_PORT, SW11_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw11,3);
+				state11 = 1;
+			}
+		break;
+	}
+}
+
+void sw12_task(void){
+	static uint8_t state12 = 1;
+
+	switch(state12)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW12_PORT, SW12_PIN) == 0))
+			{
+				state12 = 2;
+				counter_sw12= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw12 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW12_PORT, SW12_PIN) == 0)
+				{
+					state12 = 3;
+				}
+				else
+					state12 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW12_PORT, SW12_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw12,3);
+				state12 = 1;
+			}
+		break;
+	}
+}
+
+void sw13_task(void){
+	static uint8_t state13 = 1;
+
+	switch(state13)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW13_PORT, SW13_PIN) == 0))
+			{
+				state13 = 2;
+				counter_sw13= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw13 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW13_PORT, SW13_PIN) == 0)
+				{
+					state13 = 3;
+				}
+				else
+					state13 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW13_PORT, SW13_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw13,3);
+				state13 = 1;
+			}
+		break;
+	}
+}
+
+void sw14_task(void){
+	static uint8_t state14 = 1;
+
+	switch(state14)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW14_PORT, SW14_PIN) == 0))
+			{
+				state14 = 2;
+				counter_sw14= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw14 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW14_PORT, SW14_PIN) == 0)
+				{
+					state14 = 3;
+				}
+				else
+					state14 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW14_PORT, SW14_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw14,3);
+				state14 = 1;
+			}
+		break;
+	}
+}
+
+void sw15_task(void){
+	static uint8_t state15 = 1;
+
+	switch(state15)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW15_PORT, SW15_PIN) == 0))
+			{
+				state15 = 2;
+				counter_sw15= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw15 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW15_PORT, SW15_PIN) == 0)
+				{
+					state15 = 3;
+				}
+				else
+					state15 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW15_PORT, SW15_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw15,3);
+				state15 = 1;
+			}
+		break;
+	}
+}
+
+void sw16_task(void){
+	static uint8_t state16 = 1;
+
+	switch(state16)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW16_PORT, SW16_PIN) == 0))
+			{
+				state16 = 2;
+				counter_sw16= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw16 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW16_PORT, SW16_PIN) == 0)
+				{
+					state16 = 3;
+				}
+				else
+					state16 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW16_PORT, SW16_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw16,3);
+				state16 = 1;
+			}
+		break;
+	}
+}
+
+void sw17_task(void){
+	static uint8_t state17 = 1;
+
+	switch(state17)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW17_PORT, SW17_PIN) == 0))
+			{
+				state17 = 2;
+				counter_sw17= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw17 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW17_PORT, SW17_PIN) == 0)
+				{
+					state17 = 3;
+				}
+				else
+					state17 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW17_PORT, SW17_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw17,3);
+				state17 = 1;
+			}
+		break;
+	}
+}
+
+void sw18_task(void){
+	static uint8_t state18 = 1;
+
+	switch(state18)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW18_PORT, SW18_PIN) == 0))
+			{
+				state18 = 2;
+				counter_sw18= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw18 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW18_PORT, SW18_PIN) == 0)
+				{
+					state18 = 3;
+				}
+				else
+					state18 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW18_PORT, SW18_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw18,3);
+				state18 = 1;
+			}
+		break;
+	}
+}
+
+void sw19_task(void){
+	static uint8_t state19 = 1;
+
+	switch(state19)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW19_PORT, SW19_PIN) == 0))
+			{
+				state19 = 2;
+				counter_sw19= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw19 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW19_PORT, SW19_PIN) == 0)
+				{
+					state19 = 3;
+				}
+				else
+					state19 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW19_PORT, SW19_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw19,3);
+				state19 = 1;
+			}
+		break;
+	}
+}
+
+void sw20_task(void){
+	static uint8_t state20 = 1;
+
+	switch(state20)
+	{
+		case 1:
+			if((HAL_GPIO_ReadPin(SW20_PORT, SW20_PIN) == 0))
+			{
+				state20 = 2;
+				counter_sw20= 0;
+			}
+		break;
+		case 2:
+			if(counter_sw20 >= DEBOUNCING_TIME)
+			{
+				if(HAL_GPIO_ReadPin(SW20_PORT, SW20_PIN) == 0)
+				{
+					state20 = 3;
+				}
+				else
+					state20 = 1;
+			}
+		break;
+		case 3:
+			if(HAL_GPIO_ReadPin(SW20_PORT, SW20_PIN) == 1)
+			{
+				VCP_Transmit(MIDI_sw20,3);
+				state20 = 1;
+			}
+		break;
+	}
+}
+
+
 //	Funciones Transmit- Reception USB
 
 void VCP_TransmitCpltCallback(void){
@@ -524,6 +1109,21 @@ int main(void)
 	  sw3_task();
 	  sw4_task();
 	  sw5_task();
+	  sw6_task();
+	  sw7_task();
+	  sw8_task();
+	  sw9_task();
+	  sw10_task();
+	  sw11_task();
+	  sw12_task();
+	  sw13_task();
+	  sw14_task();
+	  sw15_task();
+	  sw16_task();
+	  sw17_task();
+	  sw18_task();
+	  sw19_task();
+	  sw20_task();
   }
   /* USER CODE END 3 */
 }
