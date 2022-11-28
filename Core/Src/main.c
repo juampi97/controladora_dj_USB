@@ -247,6 +247,21 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 	counter_sw3++;
 	counter_sw4++;
 	counter_sw5++;
+	counter_sw6++;
+	counter_sw7++;
+	counter_sw8++;
+	counter_sw9++;
+	counter_sw10++;
+	counter_sw11++;
+	counter_sw12++;
+	counter_sw13++;
+	counter_sw14++;
+	counter_sw15++;
+	counter_sw16++;
+	counter_sw17++;
+	counter_sw18++;
+	counter_sw19++;
+	counter_sw20++;
 }
 
 void led_task(void){
